@@ -1,39 +1,5 @@
 #include "Client.h"
 
-// 콘솔에 메시지를 출력하는 함수
-void print(vector<char>* str)
-{
-    // 포인트 위치
-    int p = 0;
-    // 버퍼 설정. +1은 \0를 넣기 위한 크기
-    char out[BUFFERSIZE + 1];
-    // 콘솔 출력
-    cout << "From server message : ";
-
-    for (int n = 0; n < (str->size() / BUFFERSIZE) + 1; n++)
-    {
-        // 버퍼 사이즈 설정
-        int size = str->size();
-        // 수신 데이터가 버퍼 사이즈를 넘었을 경우.
-        if (size > BUFFERSIZE) {
-            if (str->size() < (n + 1) * BUFFERSIZE)
-            {
-                size = str->size() % BUFFERSIZE;
-            }
-            else
-            {
-                size = BUFFERSIZE;
-            }
-        }
-        // echo 메시지와 콘솔 메시지를 작성한다.
-        for (int i = 0; i < size; i++, p++)
-        {
-            out[i] = *(str->begin() + p);
-        }
-        // 콘솔 메시지 콘솔 출력.
-        cout << out;
-    }
-}
 
 Client::Client()
 {
@@ -52,7 +18,7 @@ int Client::Initialize()
     }
     // Internet의 Stream 방식으로 소켓 생성 
     sock = socket(PF_INET, SOCK_STREAM, 0);
-    
+
     // 구조체 초기화
     memset(&addr, 0, sizeof(addr));
     // 소켓은 Internet 타입
@@ -67,5 +33,43 @@ int Client::Initialize()
         // 에러 콘솔 출력
         cout << "error" << endl;
         return 1;
+    }
+}
+
+
+// 콘솔에 메시지를 출력하는 함수
+int CheckConnecting(string str)
+{
+    if (str.compare("/noclient") == 0)
+    {
+        cout << "Waiting For Other Client\n";
+        return 0;
+    }
+
+    cout << "상대 : " << str << "\n>";
+    
+    return 1;
+}
+
+void GetOtherClientMessage(SOCKET sock)
+{
+    string buffer;
+	char x[BUFFERSIZE];
+    while (1)
+    {
+		memset(x, 0x00, sizeof(x));
+
+		// 데이터를 받는다. 에러가 발생하면 멈춘다.
+		if (recv(sock, x, sizeof(x), 0) == SOCKET_ERROR)
+		{
+			// 에러 콘솔 출력
+			cout << "error" << endl;
+            break;
+		}
+		// 메시지 출력
+		buffer = x;
+
+		if (!CheckConnecting(buffer))
+			continue;
     }
 }

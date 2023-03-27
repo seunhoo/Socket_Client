@@ -11,10 +11,11 @@
 #include <WinSock2.h>
 // 수신 버퍼 사이즈
 #define BUFFERSIZE 8196
-#define IPADDR "127.0.0.1"
+#define IPADDR "192.168.0.190"
 using namespace std;
 
-void print(vector<char>* str);
+int CheckConnecting(string str);
+void GetOtherClientMessage(SOCKET sock);
 
 
 class Client
